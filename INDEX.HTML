@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title> MISHRA App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1> ABHI News</h1>
+    <input type="text" id="search" placeholder="Search news...">
+    <button onclick="searchNews()">Search</button>
+  </header>
+
+  <main id="news-container">
+    <!-- News cards will appear here -->
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f51111;
+}
+
+header {
+  background: #0a3d62;
+  color: rgb(13, 211, 233);
+  padding: 15px;
+  text-align: center;
+}
+
+header input {
+  padding: 8px;
+  width: 200px;
+}
+
+header button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#news-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.news-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.news-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.news-card h3 {
+  padding: 10px;
+}
+
+.news-card p {
+  padding: 0 10px;
+}
+
+.news-card a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: white;
+  background: #0a3d62;
+  text-align: center;
+}
+</style>
+
+<script>
+const apiKey = "pub_5931dcf7c13e4faa8dea7c7d53958348";
+const newsContainer = document.getElementById("news-container");
+
+// Load latest news on page load
+window.onload = () => {
+  fetchNews("india");
+};
+
+function fetchNews(query) {
+  newsContainer.innerHTML = "<h2>Loading...</h2>";
+
+  fetch(`https://newsdata.io/api/1/news?apikey=${apiKey}&q=${query}&language=en`)
+    .then(res => res.json())
+    .then(data => {
+      newsContainer.innerHTML = "";
+      if (!data.results) {
+        newsContainer.innerHTML = "<h2>No news found</h2>";
+        return;
+      }
+
+      data.results.forEach(news => {
+        const card = document.createElement("div");
+        card.className = "news-card";
+
+        card.innerHTML = `
+          <img src="${news.image_url || 'https://via.placeholder.com/300'}">
+          <h3>${news.title}</h3>
+          <p>${news.description || "No description available"}</p>
+          <a href="${news.link}" target="_blank">Read More</a>
+        `;
+
+        newsContainer.appendChild(card);
+      });
+    })
+    .catch(err => {
+      newsContainer.innerHTML = "<h2>Error loading news</h2>";
+      console.error(err);
+    });
+}
+
+function searchNews() {
+  const searchText = document.getElementById("search").value;
+  if (searchText) {
+    fetchNews(searchText);
+  }
+}
+</script>
